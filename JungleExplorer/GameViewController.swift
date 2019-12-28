@@ -16,10 +16,13 @@ class GameViewController: UIViewController {
         super.viewDidLoad()
         
         if let view = self.view as! SKView? {
+            
             // Load the SKScene from 'GameScene.sks'
-            if let scene = SKScene(fileNamed: "GameScene") {
+            if let scene = GameScene(fileNamed: "GameScene") {
+                       
                 // Set the scale mode to scale to fit the window
-                scene.scaleMode = .aspectFill
+                scene.scaleMode = .aspectFill //.resizeFill Set the scale mode to scale to fit the window
+                scene.size = view.bounds.size
                 
                 // Present the scene
                 view.presentScene(scene)
@@ -29,6 +32,12 @@ class GameViewController: UIViewController {
             
             view.showsFPS = true
             view.showsNodeCount = true
+            
+            //to see Spritekit SKPhysicsbody borderline
+            let skView = self.view as! SKView
+            skView.showsFPS = true
+            skView.showsNodeCount = true
+            skView.showsPhysics = true
         }
     }
 
