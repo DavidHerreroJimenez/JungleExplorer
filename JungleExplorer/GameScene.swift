@@ -9,7 +9,8 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
+    
     
    
     let TIME_PER_FRAME_RUN = 0.2
@@ -25,17 +26,10 @@ class GameScene: SKScene {
     
     //Textures for explorer jump.
     var jumpArray = Array<SKTexture>()
-//    let jumpAtlas = SKTextureAtlas(named:"JumpImages.atlas")
-//    jumpArray.append(jumpAtlas.textureNamed("Jump"))
-    
-
-    //let textureAtlas = SKTextureAtlas(named:"RunImages.atlas")
-    //Specifies the image atlas used.
-
-
-
-    var explorerBaseLine = CGFloat (0)
+  
     //This is where the Hero character sits on top of the ground.
+    var explorerBaseLine = CGFloat (0)
+  
     
     var variationBaseLine = 175// IPHONE 11 PRO
     var variationExplorerPosition = 0.5 //Iphone 11 pro
@@ -45,35 +39,21 @@ class GameScene: SKScene {
     var groundHeight = 64
     //Creates a variable to specify if Hero is on the ground.
     
-    var definitiveExplorerBaseline: CGFloat = -125.9
+    var definitiveExplorerBaseline: CGFloat = -126.36408996582031
 
-//    var velocityY = CGFloat (0)
-//    //Creates a variable to hold a three decimal point specification for velocity in the Y axis.
-//
-//    let gravity = CGFloat (0.6)
-//    //Creates a non variable setting for gravity in the scene.
-//
-//    let movingGround = SKSpriteNode (imageNamed: "Ground")
-//    //Creates an object for the moving ground and assigns the Ground image to it.
-//
-//    var originalMovingGroundPositionX = CGFloat (0)
-//    //Sets a variable for the original ground position before it starts to move.
-//
-//    var MaxGroundX = CGFloat (0)
-//    //Sets a variable for the maximum
-//
-//    var groundSpeed = 4
-    //Sets the ground speed.  This number is how many pixels it will move the ground to the left every frame.
+    
+    let explorerCategory: UInt32 = 1 << 0
+    let groundCategory: UInt32 = 1 << 1
+    let obstaclesCategory: UInt32 = 1 << 2
 
     
     override func didMove(to view: SKView) {
         
+        self.physicsWorld.contactDelegate = self
+        
         self.backgroundColor = #colorLiteral(red: 0.7098039216, green: 0.8470588235, blue: 0.7843137255, alpha: 1)
         explorerBaseLine = self.frame.midX - CGFloat(variationBaseLine)
-        //definitiveExplorerBaseline = explorerBaseLine + (CGFloat(groundHeight) / 2) + (CGFloat(heightExplorer) / 2)
-        print("explorerBaseline: \(explorerBaseLine)")
-        print("ground: \((CGFloat(groundHeight) / 2))")
-        print("heightExplorer: \((CGFloat(heightExplorer) / 2))")
+    
         let frameSafeArea: CGRect = view.safeAreaLayoutGuide.layoutFrame
         
         
@@ -84,26 +64,24 @@ class GameScene: SKScene {
         setBackground(safeArea: frameSafeArea)
         
         setGround(safeArea: frameSafeArea)
-
         
-            
-         explorer = SKSpriteNode(texture: spriteArray[0])
-        explorer!.position = CGPoint(x: -frameSafeArea.maxY + (frameSafeArea.maxY / 3), y: 0.0)//y: definitiveExplorerBaseline)
-         explorer!.zPosition = 00
-         explorer!.physicsBody = SKPhysicsBody(circleOfRadius: max(explorer!.size.width / 2, explorer!.size.height / 2))
-         explorer!.physicsBody?.isDynamic = true
-         explorer!.physicsBody?.allowsRotation = false
-         explorer!.physicsBody?.usesPreciseCollisionDetection = true
-         explorer!.color = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
-         explorer!.colorBlendFactor = 1.0
-         
-        
-         run()
-         
+        setObstacles(safeArea: frameSafeArea)
 
-            
-         
-         self.addChild(explorer!)
+        setExplorer(safeArea: frameSafeArea)
+
+
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        
+        print("HA COLISIONADO!!!")
+        
+       if self.onGround == false {
+                        print("entra")
+                        self.onGround = true
+        
+                        run()
+                    }
     }
     
     func fillSpriteArray(){
@@ -159,6 +137,30 @@ class GameScene: SKScene {
               jumpArray.append(explorerJumpTexture5)
               jumpArray.append(explorerJumpTexture6)
         
+    }
+    
+    func setObstacles(safeArea frameSafeArea: CGRect){
+        
+        let obstacle01 = SKTexture(imageNamed: "rectangle01")
+
+        let movObs01 = SKAction.moveBy(x: -frameSafeArea.width, y: CGFloat(0), duration: TimeInterval(0.01*frameSafeArea.width))
+        let resetMovObs01 = SKAction.moveBy(x: frameSafeArea.width, y: CGFloat(0), duration: TimeInterval(0))
+        let constantMovObs01 = SKAction.repeatForever(SKAction.sequence([movObs01, resetMovObs01]))
+        
+        for i in 0...2 {
+            
+            let obstacle = SKSpriteNode(texture: obstacle01)
+
+            obstacle.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: obstacle01.size().width, height: obstacle01.size().height))
+            obstacle.physicsBody?.isDynamic = false
+            obstacle.physicsBody?.affectedByGravity = false
+            obstacle.position = CGPoint(x: CGFloat(i) * frameSafeArea.width, y: definitiveExplorerBaseline)
+            obstacle.physicsBody?.categoryBitMask = obstaclesCategory
+            obstacle.physicsBody?.contactTestBitMask = explorerCategory
+            obstacle.run(constantMovObs01)
+            
+            self.addChild(obstacle)
+        }
     }
     
     func setBackground(safeArea frameSafeArea: CGRect){
@@ -238,8 +240,31 @@ class GameScene: SKScene {
         ground.physicsBody?.isDynamic = false
         ground.physicsBody?.affectedByGravity = false
         ground.position = CGPoint(x: 0.0, y: explorerBaseLine)//self.frame.midX - 175)
-        
+        ground.physicsBody?.categoryBitMask = groundCategory
+        ground.physicsBody?.contactTestBitMask = explorerCategory
+    
         self.addChild(ground)
+    }
+    
+    func setExplorer(safeArea frameSafeArea: CGRect){
+        
+        explorer = SKSpriteNode(texture: spriteArray[0])
+        explorer!.position = CGPoint(x: -frameSafeArea.maxY + (frameSafeArea.maxY / 3), y: 0.0)//y: definitiveExplorerBaseline)
+        explorer!.zPosition = 00
+        explorer!.physicsBody = SKPhysicsBody(circleOfRadius: max(explorer!.size.width / 2, explorer!.size.height / 2))
+        explorer!.physicsBody?.isDynamic = true
+        explorer!.physicsBody?.allowsRotation = false
+        explorer!.physicsBody?.usesPreciseCollisionDetection = true
+        explorer!.color = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
+        explorer!.colorBlendFactor = 1.0
+        
+        explorer!.physicsBody?.categoryBitMask = explorerCategory
+        explorer!.physicsBody?.collisionBitMask = groundCategory | obstaclesCategory
+        explorer!.physicsBody?.contactTestBitMask = groundCategory | obstaclesCategory
+        
+        run()
+        
+        self.addChild(explorer!)
     }
     
     
@@ -274,7 +299,9 @@ class GameScene: SKScene {
         
             if self.onGround {
                   jump()
-              }
+            } else {
+               // extraJump()
+            }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -293,61 +320,54 @@ class GameScene: SKScene {
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
         
-        print("onGround: \(onGround)")
-        print("y: \(self.explorer!.position.y)")
-        print("definitive: \(self.definitiveExplorerBaseline)")
-
-        if self.explorer!.position.y < self.definitiveExplorerBaseline {
-            
-            
-            self.explorer!.position.y = self.definitiveExplorerBaseline
-
-            //velocityY = 0.0
-        
-        
-
-            if self.onGround == false {
-                self.onGround = true
-                print("on the ground onGround: \(onGround)")
-
-                run()
-            }
-       }
+//        if (self.explorer!.position.y < self.definitiveExplorerBaseline) {
+//
+//            self.explorer!.position.y = self.definitiveExplorerBaseline
+//
+//            if self.onGround == false {
+//                print("entra")
+//                self.onGround = true
+//
+//                run()
+//            }
+//       }
     }
-    
-//    func jumpRotation(min: CGFloat, max: CGFloat, currentRotation:CGFloat) -> CGFloat{
-//
-//        if (currentRotation > max){
-//            return max
-//        }else if (currentRotation < min){
-//            return min
-//        }else{
-//            return currentRotation
-//        }
-//
-//    }
     
     func run() {
         let walkAnimation = SKAction.animate(with: spriteArray, timePerFrame: 0.1)
         let run = SKAction.repeatForever(walkAnimation)
-        //self.explorer!.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
-        //self.explorer!.physicsBody?.applyImpulse((CGVector(dx: 0.0, dy: 0.0)))
         explorer!.run(run)
     }
     
     func jump() {
         
+        
+        self.explorer!.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
+        self.explorer!.physicsBody?.applyImpulse((CGVector(dx: 0.0, dy: 15.0)))
+        
         print("jump")
-        //self.velocityY = -18
         self.onGround = false
-        print("jump over ground")
 
         let jumpAnimation = SKAction.animate(with: jumpArray, timePerFrame: 0.1)
         let jump = SKAction.repeatForever(jumpAnimation)
         self.explorer!.run(jump)
-        
-        self.explorer!.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
-        self.explorer!.physicsBody?.applyImpulse((CGVector(dx: 0.0, dy: 15.0)))
-
     }
+    
+    func extraJump(){
+        
+        jump()
+        
+    }
+    
+        func jumpRotation(min: CGFloat, max: CGFloat, currentRotation:CGFloat) -> CGFloat{
+    
+            if (currentRotation > max){
+                return max
+            }else if (currentRotation < min){
+                return min
+            }else{
+                return currentRotation
+            }
+    
+        }
 }
