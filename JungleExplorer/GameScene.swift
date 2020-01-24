@@ -164,7 +164,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func getInfiniteObstacles(obstacleHeight: CGFloat){
         
-        let waitForNewObstacle = SKAction.wait(forDuration: TimeInterval(1.0))
+        let waitForNewObstacle = SKAction.wait(forDuration: TimeInterval(0.5))
         
         let newObstacleAction = SKAction.run({() in self.getNewObstacle(obstaclesSpeed: self.obstaclesSpeed, obstacleHeight: self.getRandomHeight(obstacleHeight: obstacleHeight))})
           
@@ -183,102 +183,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let randomCGFloat = CGFloat.random(in: initValue...finishValue)
         
         return randomCGFloat
-    }
-    
-    func setObstacles(safeArea frameSafeArea: CGRect){
-        
-        let obstacle01 = SKTexture(imageNamed: "rectangle01")
-        
-        let movObs01 = SKAction.moveBy(x: -frameSafeArea.width, y: CGFloat(0), duration: TimeInterval(0.01*frameSafeArea.width))
-        let resetMovObs01 = SKAction.moveBy(x: frameSafeArea.width, y: CGFloat(0), duration: TimeInterval(0))
-        let constantMovObs01 = SKAction.repeatForever(SKAction.sequence([movObs01, resetMovObs01]))
-        
-        let obstacle02 = SKTexture(imageNamed: "rectangle01")
-        
-        //let movObs02 = SKAction.moveBy(x: -frameSafeArea.width, y: CGFloat(0), duration: TimeInterval(0.01*frameSafeArea.width))
-        // let resetMovObs01 = SKAction.moveBy(x: frameSafeArea.width, y: CGFloat(0), duration: TimeInterval(0))
-        //  let constantMovObs01 = SKAction.repeatForever(SKAction.sequence([movObs01, resetMovObs01]))
-        
-        for i in 0...2 {
-            
-            
-            
-            // let random = CGPoint(x: CGFloat(arc4random() % UInt32(frameSafeArea.width)), y: CGFloat(arc4random() % UInt32(frameSafeArea.height)))
-            
-            
-            let obstacle01Node = SKSpriteNode(texture: obstacle01)
-            
-            obstacle01Node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: obstacle01Node.size.width, height: obstacle01Node.size.height))
-            obstacle01Node.physicsBody?.isDynamic = false
-            obstacle01Node.physicsBody?.affectedByGravity = false
-            obstacle01Node.position = CGPoint(x: CGFloat(i) * frameSafeArea.width, y: definitiveExplorerBaseline)
-            obstacle01Node.physicsBody?.categoryBitMask = obstaclesCategory
-            obstacle01Node.physicsBody?.contactTestBitMask = explorerCategory
-            obstacle01Node.run(constantMovObs01)
-            
-            let obstacle02Node = SKSpriteNode(texture: obstacle02)
-            obstacle02Node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: obstacle02Node.size.width, height: obstacle02Node.size.height))
-            obstacle02Node.physicsBody?.isDynamic = false
-            obstacle02Node.physicsBody?.affectedByGravity = false
-            obstacle02Node.position = CGPoint(x: CGFloat(i) * frameSafeArea.width + obstacle01Node.size.width * 2 , y: definitiveExplorerBaseline + obstacle01Node.size.height)
-            obstacle02Node.physicsBody?.categoryBitMask = obstaclesCategory
-            obstacle02Node.physicsBody?.contactTestBitMask = explorerCategory
-            obstacle02Node.run(constantMovObs01)
-            
-            
-            let obstacle03Node = SKSpriteNode(texture: obstacle02)
-            obstacle03Node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: obstacle03Node.size.width, height: obstacle03Node.size.height))
-            obstacle03Node.physicsBody?.isDynamic = false
-            obstacle03Node.physicsBody?.affectedByGravity = false
-            obstacle03Node.position = CGPoint(x: CGFloat(i) * frameSafeArea.width + obstacle02Node.size.width * 4 , y: definitiveExplorerBaseline + obstacle01Node.size.height * 2)
-            obstacle03Node.physicsBody?.categoryBitMask = obstaclesCategory
-            obstacle03Node.physicsBody?.contactTestBitMask = explorerCategory
-            obstacle03Node.run(constantMovObs01)
-            
-            
-            let obstacle04Node = SKSpriteNode(texture: obstacle02)
-            obstacle04Node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: obstacle03Node.size.width, height: obstacle04Node.size.height))
-            obstacle04Node.physicsBody?.isDynamic = false
-            obstacle04Node.physicsBody?.affectedByGravity = false
-            obstacle04Node.position = CGPoint(x: CGFloat(i) * frameSafeArea.width + obstacle02Node.size.width * 6 , y: definitiveExplorerBaseline + obstacle01Node.size.height * 2)
-            obstacle04Node.physicsBody?.categoryBitMask = obstaclesCategory
-            obstacle04Node.physicsBody?.contactTestBitMask = explorerCategory
-            obstacle04Node.run(constantMovObs01)
-            
-            
-            let obstacle05Node = SKSpriteNode(texture: obstacle02)
-            obstacle05Node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: obstacle04Node.size.width, height: obstacle05Node.size.height))
-            obstacle05Node.physicsBody?.isDynamic = false
-            obstacle05Node.physicsBody?.affectedByGravity = false
-            obstacle05Node.position = CGPoint(x: CGFloat(i) * frameSafeArea.width + obstacle02Node.size.width * 8 , y: definitiveExplorerBaseline + obstacle01Node.size.height * 4)
-            obstacle05Node.physicsBody?.categoryBitMask = obstaclesCategory
-            obstacle05Node.physicsBody?.contactTestBitMask = explorerCategory
-            obstacle05Node.run(constantMovObs01)
-            
-            
-            //            for i in 0 ... 20 {
-            //
-            //            let obstacle06Node = SKSpriteNode(texture: obstacle02)
-            //                    obstacle06Node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: obstacle05Node.size.width, height: obstacle06Node.size.height))
-            //                    obstacle06Node.physicsBody?.isDynamic = false
-            //                    obstacle06Node.physicsBody?.affectedByGravity = false
-            //                    obstacle06Node.position = CGPoint(x: CGFloat(i) * frameSafeArea.width + obstacle02Node.size.width * 8 + arc4random() , y: definitiveExplorerBaseline + obstacle01Node.size.height * 4 + arc4random()                                                                                                                                                                        )
-            //                    obstacle06Node.physicsBody?.categoryBitMask = obstaclesCategory
-            //                    obstacle06Node.physicsBody?.contactTestBitMask = explorerCategory
-            //                    obstacle06Node.run(constantMovObs01)
-            //
-            //                 self.addChild(obstacle06Node)
-            //
-            //            }
-            
-            
-            
-            self.addChild(obstacle01Node)
-            self.addChild(obstacle02Node)
-            self.addChild(obstacle03Node)
-            self.addChild(obstacle04Node)
-            self.addChild(obstacle05Node)
-        }
     }
     
     func setBackground(safeArea frameSafeArea: CGRect){
