@@ -166,7 +166,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let waitForNewObstacle = SKAction.wait(forDuration: TimeInterval(1.0))
         
-        let newObstacleAction = SKAction.run({() in self.getNewObstacle(obstaclesSpeed: self.obstaclesSpeed, obstacleHeight: obstacleHeight)})
+        let newObstacleAction = SKAction.run({() in self.getNewObstacle(obstaclesSpeed: self.obstaclesSpeed, obstacleHeight: self.getRandomHeight(obstacleHeight: obstacleHeight))})
           
         let getNexObstacle = SKAction.sequence([newObstacleAction, waitForNewObstacle])
           
@@ -177,19 +177,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func getRandomHeight(obstacleHeight: CGFloat) -> CGFloat{
         
-        var height = CGFloat(arc4random())
+        let initValue: CGFloat = obstacleHeight
+        let finishValue: CGFloat = obstacleHeight * -1
+
+        let randomCGFloat = CGFloat.random(in: initValue...finishValue)
         
-        if (height <= (obstacleHeight * -1) && height > obstacleHeight ){
-            
-            height += obstacleHeight
-            
-        }else{
-            
-            height -= obstacleHeight
-            
-        }
-        
-        return height
+        return randomCGFloat
     }
     
     func setObstacles(safeArea frameSafeArea: CGRect){
