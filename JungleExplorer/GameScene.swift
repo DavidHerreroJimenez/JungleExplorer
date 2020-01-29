@@ -37,11 +37,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var definitiveExplorerBaseline: CGFloat = -126.36408996582031
     
-    
-    let explorerCategory: UInt32 = 1 << 0
-    let groundCategory: UInt32 = 1 << 1
-    let obstaclesCategory: UInt32 = 1 << 2
-    
     lazy var frameSafeArea: CGRect = CGRect()
     
     
@@ -49,6 +44,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     lazy var startingPoint: CGPoint = CGPoint();
     lazy var obstaclesSpeed: CGFloat = CGFloat();
+    
+    enum CategoryMask: UInt32 {
+        
+        case explorer = 0b01 //1 0b is used to represent a binary value
+        case obstacles = 0b10 //2
+        case ground = 0b11 //3
+        
+    }
+    
+    enum ObjectsName: String {
+        case EXPLORER = "Explorer"
+        case OBSTACLE = "Obstacle"
+        case GROUND = "Ground"
+        case CEILING = "Ceiling"
+    }
+    
+    var collisionsCounter = 0
+    
+    let waitingTimeObstacles = 0.5
     
     override func didMove(to view: SKView) {
         
@@ -76,7 +90,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func didBegin(_ contact: SKPhysicsContact) {
         
-        // print("HA COLISIONADO!!!")
+        
+        
+        if (contact.bodyA.node?.name == ObjectsName.GROUND.rawValue && contact.bodyB.node?.name == ObjectsName.EXPLORER.rawValue){
+            
+            collisionsCounter += 1
+            print("\(String(describing: contact.bodyA.node?.name)) with \(String(describing: contact.bodyB.node?.name))")
+            print("contador: \(collisionsCounter)")
+        }
+        
+        
         
         if self.onGround == false {
             //print("entra")
@@ -153,18 +176,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         obstacle01Node.physicsBody?.isDynamic = false
         obstacle01Node.physicsBody?.affectedByGravity = false
         obstacle01Node.position = CGPoint(x: startingPoint.x, y: obstacleHeight)
-        obstacle01Node.physicsBody?.categoryBitMask = obstaclesCategory
-        obstacle01Node.physicsBody?.contactTestBitMask = explorerCategory
+        obstacle01Node.physicsBody?.categoryBitMask = CategoryMask.obstacles.rawValue
+        obstacle01Node.physicsBody?.contactTestBitMask = CategoryMask.explorer.rawValue
+        
+        obstacle01Node.name = ObjectsName.OBSTACLE.rawValue
         obstacle01Node.run(constantMovObs01)
         
         self.addChild(obstacle01Node)
-        
-        
     }
     
     func getInfiniteObstacles(obstacleHeight: CGFloat){
         
-        let waitForNewObstacle = SKAction.wait(forDuration: TimeInterval(0.5))
+        let waitForNewObstacle = SKAction.wait(forDuration: TimeInterval(waitingTimeObstacles))
         
         let newObstacleAction = SKAction.run({() in self.getNewObstacle(obstaclesSpeed: self.obstaclesSpeed, obstacleHeight: self.getRandomHeight(obstacleHeight: obstacleHeight))})
           
@@ -262,8 +285,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody?.isDynamic = false
         ground.physicsBody?.affectedByGravity = false
         ground.position = CGPoint(x: 0.0, y: explorerBaseLine)//self.frame.midX - 175)
-        ground.physicsBody?.categoryBitMask = groundCategory
-        ground.physicsBody?.contactTestBitMask = explorerCategory
+        ground.physicsBody?.categoryBitMask = CategoryMask.ground.rawValue
+        ground.physicsBody?.contactTestBitMask = CategoryMask.explorer.rawValue
+        ground.name = ObjectsName.GROUND.rawValue
         
         self.addChild(ground)
     }
@@ -280,9 +304,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         explorer!.color = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
         explorer!.colorBlendFactor = 1.0
         
-        explorer!.physicsBody?.categoryBitMask = explorerCategory
-        explorer!.physicsBody?.collisionBitMask = groundCategory | obstaclesCategory
-        explorer!.physicsBody?.contactTestBitMask = groundCategory | obstaclesCategory
+        explorer!.physicsBody?.categoryBitMask = CategoryMask.explorer.rawValue
+        explorer!.physicsBody?.collisionBitMask = CategoryMask.ground.rawValue | CategoryMask.obstacles.rawValue
+        explorer!.physicsBody?.contactTestBitMask = CategoryMask.ground.rawValue | CategoryMask.obstacles.rawValue
+        
+        explorer!.name = ObjectsName.EXPLORER.rawValue
         
         run()
         
