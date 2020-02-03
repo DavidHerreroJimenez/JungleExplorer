@@ -11,8 +11,9 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
+   
+    let winner = SKLabelNode(fontNamed: "Chalkduster")
+   // private var spinnyNode : SKShapeNode?
     
     //Create an explorer
     var explorer: SKSpriteNode?
@@ -86,17 +87,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         getInfiniteObstacles(obstacleHeight: definitiveExplorerBaseline)
         
         setExplorer(safeArea: frameSafeArea)
+        
+        setScoreCounter(currentScore: 0)
+        addChild(winner)
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
         
         
         
-        if (contact.bodyA.node?.name == ObjectsName.GROUND.rawValue && contact.bodyB.node?.name == ObjectsName.EXPLORER.rawValue){
+        if (contact.bodyA.node?.name == ObjectsName.OBSTACLE.rawValue && contact.bodyB.node?.name == ObjectsName.EXPLORER.rawValue){
+            
             
             collisionsCounter += 1
             print("\(String(describing: contact.bodyA.node?.name)) with \(String(describing: contact.bodyB.node?.name))")
             print("contador: \(collisionsCounter)")
+            
+            
+            
+            //TODO: Is necessary to get solution for multiple collisions qith the same object
         }
         
         
@@ -315,6 +324,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(explorer!)
     }
     
+    func setScoreCounter(currentScore: Int){
+        
+        winner.text = String(currentScore)
+        winner.fontSize = 65
+        winner.fontColor = SKColor.green
+        winner.position = CGPoint(x: frame.midX + 350, y: frame.midY + 100)
+        
+        
+           
+        
+    }
+    
     
     func touchDown(atPoint pos : CGPoint) {
         //        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
@@ -367,6 +388,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var time = 20
     
     override func update(_ currentTime: TimeInterval) {
+        
+        setScoreCounter(currentScore: collisionsCounter)
         
 //                if ((Int(currentTime) % time) == 0){
 //
