@@ -35,9 +35,9 @@ class GameViewController: UIViewController {
             
             //to see Spritekit SKPhysicsbody borderline
             let skView = self.view as! SKView
-            skView.showsFPS = true
-            skView.showsNodeCount = true
-            skView.showsPhysics = true
+            skView.showsFPS = false
+            skView.showsNodeCount = false
+            skView.showsPhysics = false
             
         }
     }
