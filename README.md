@@ -3,9 +3,9 @@
 
 ## Some screenshots:
 
-<img src="images_readme/1.png" alt="drawing" width="200"/>  
-<img src="images_readme/2.png" alt="drawing" width="200"/>  
-<img src="images_readme/3.png" alt="drawing" width="200"/>
+<img src="images_readme/1.png" alt="drawing" width="400"/>  
+<img src="images_readme/2.png" alt="drawing" width="400"/>  
+<img src="images_readme/3.png" alt="drawing" width="400"/>
 
 <!-- ## Preview:
 
